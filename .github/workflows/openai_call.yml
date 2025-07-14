@@ -1,0 +1,21 @@
+name: OpenAI ChatGPT API Call
+
+on:
+  workflow_dispatch:  # allows manual triggering
+
+jobs:
+  call_openai:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Make API call to OpenAI
+        run: |
+          curl https://api.openai.com/v1/chat/completions \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
+            -d '{
+              "model": "gpt-4o-mini",
+              "messages": [
+                {"role": "user", "content": "write a haiku about ai"}
+              ]
+            }'
