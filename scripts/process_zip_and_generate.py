@@ -32,43 +32,29 @@ def read_input_context():
             print(f"Error reading {path}: {e}")
     return all_text
 
-def generate_documents(context):
-    for category, filenames in DOCUMENTS.items():
-        for filename in filenames:
-            title = filename.replace(".md", "")
-            print(f"Generating {category}/{filename}...")
+def generate_documents(_context):
+    title = "PSAC"
+    print(f"Generating test document for {title}...")
 
-            output_path = OUTPUT_DIR / category / filename
-            output_path.parent.mkdir(parents=True, exist_ok=True)
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Write a short software certification summary for testing purposes."}
+    ]
 
-            system_prompt = BASE_SYSTEM_PROMPT.format(title=title)
-            messages = [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Here is the source code and context:\n{context}"}
-            ]
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=messages,
+            temperature=0.3
+        )
+        content = response.choices[0].message.content
+    except Exception as e:
+        content = f"Error generating {title}:\n\n{e}"
 
-            prompt_length = sum(len(m["content"]) for m in messages)
-            print(f"Prompt length for {title}: {prompt_length} characters")
-
-            MAX_RETRIES = 3
-            for attempt in range(1, MAX_RETRIES + 1):
-                try:
-                    response = client.chat.completions.create(
-                        model="gpt-4o",
-                        messages=messages,
-                        temperature=0.3
-                    )
-                    content = response.choices[0].message.content
-                    break
-                except Exception as e:
-                    if attempt == MAX_RETRIES:
-                        content = f"Error generating {title}:\n\n{e}"
-                    else:
-                        print(f"Retrying {title} (attempt {attempt}) after error: {e}")
-                        time.sleep(3 * attempt)
-
-            with open(output_path, "w", encoding="utf-8") as f:
-                f.write(content)
+    output_path = OUTPUT_DIR / "planning" / "PSAC.md"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(content)
 
 if __name__ == "__main__":
     print("Reading context from input_zip...")
