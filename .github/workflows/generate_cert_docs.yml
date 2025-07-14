@@ -2,10 +2,6 @@ name: Generate Certification Documents
 
 on:
   workflow_dispatch:
-    inputs:
-      zip_file:
-        description: 'Upload a ZIP file containing C code from Simulink'
-        required: false
 
 jobs:
   generate-cert-docs:
@@ -23,11 +19,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install openai
+          pip install openai==1.14.3
 
       - name: Unzip uploaded file
         run: |
-          mkdir input_zip
+          mkdir -p input_zip
           unzip '*.zip' -d input_zip || echo "No ZIP file uploaded"
 
       - name: Run document generation script
